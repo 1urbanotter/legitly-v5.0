@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
 import CaseItem from '@/components/CaseItem'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import Loading from '@/components/common/Loading'
-import DashboardHeader from '@/components/dashboard/Header'
+import DashboardHeader from '@/components/dashboard/DashboardHeader'
 import { Case } from '@/types/case'
 
 interface CaseDetailPageProps {

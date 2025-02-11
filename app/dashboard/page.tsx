@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 
 import Loading from '@/components/common/Loading'
 import { CaseList } from '@/components/dashboard/CaseList'
-import DashboardHeader from '@/components/dashboard/Header'
+import DashboardHeader from '@/components/dashboard/DashboardHeader'
 import { validateEnvironment } from '@/lib/config'
 import { User as UserType } from '@/types/user'
 
@@ -90,7 +90,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className='min-h-screen bg-gray-100'>
+    <div className='min-h-screen bg-sky-700'>
       <div className='container mx-auto py-6'>
         <DashboardHeader user={user} />
         <CaseList userId={user._id} />

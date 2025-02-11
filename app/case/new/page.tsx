@@ -10,9 +10,11 @@ import React, { useState } from 'react'
 import { useCookies } from 'react-cookie'
 import { useForm } from 'react-hook-form'
 import { toast, ToastOptions } from 'react-toastify'
+import { redirect } from 'next/navigation'
 import * as z from 'zod'
 
-import DashboardHeader from '@/components/dashboard/Header'
+import DashboardHeader from '@/components/dashboard/DashboardHeader'
+import { CaseButton } from '@/components/ui/CaseButton'
 
 const newCaseSchema = z.object({
   issueDescription: z
@@ -40,7 +42,7 @@ const newCaseSchema = z.object({
 type NewCaseSchemaType = z.infer<typeof newCaseSchema>
 
 const NewCasePage = () => {
-  const [cookies] = useCookies(['token'])
+  const [cookies, setCookie, removeCookie] = useCookies(['token'])
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const {
@@ -77,7 +79,7 @@ const NewCasePage = () => {
 
   const onSubmit = async (data: NewCaseSchemaType) => {
     setLoading(true)
-    const token = cookies.token
+    const token = cookies['token']
     if (!token) {
       toast.error('Authentication token not found. Please log in again.', {
         position: 'top-center',
@@ -118,9 +120,9 @@ const NewCasePage = () => {
           'Your case has been submitted successfully.',
           toastOptions
         )
-        const data = await response.json()
+        const { case: newCase } = await response.json()
         setTimeout(() => {
-          router.push(`/case/${data.case._id}`)
+          router.push(`/case/${newCase._id}`)
         }, 1500)
       } else {
         const errorData = await response.json()
@@ -142,17 +144,17 @@ const NewCasePage = () => {
   }
 
   return (
-    <div className='mt-20 min-h-screen bg-white_supreme p-4 sm:p-8'>
-      <div className='mx-auto max-w-3xl rounded-2xl bg-navy_blue p-6 shadow-md'>
+    <div className='bg-raisin min-h-screen p-4 pt-20 sm:p-8'>
+      <div className='shadow-silver-300 mx-auto max-w-3xl rounded-2xl bg-sky-700 p-6 shadow-lg'>
         <DashboardHeader
           user={{
-            _id: '0',
-            firstName: 'Test',
+            _id: '',
+            firstName: 'Friend!',
             lastName: 'User',
             email: 'test@example.com',
           }}
         />
-        <h1 className='mb-6 text-3xl font-bold text-white_supreme'>
+        <h1 className='border-space mb-6 border-t-4 pt-4 font-dm-serif text-3xl font-bold text-white_supreme'>
           New Case Intake
         </h1>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -164,8 +166,8 @@ const NewCasePage = () => {
               What&apos;s going on?
             </label>
             <textarea
-              className={`focus:shadow-outline w-full appearance-none rounded-xl border px-3 py-2 text-lg leading-tight text-navy_blue shadow focus:outline-none ${
-                errors.issueDescription ? 'border-almost_red' : ''
+              className={`focus:shadow-outline text-space focus:ring-space w-full appearance-none rounded-xl border px-3 py-2 text-lg leading-tight shadow focus:outline-none focus:ring ${
+                errors.issueDescription ? 'border-red-700' : ''
               }`}
               id='issueDescription'
               placeholder='Describe your situation here.'
@@ -181,13 +183,13 @@ const NewCasePage = () => {
 
           <div className='mb-4'>
             <label
-              className='mb-2 block text-xl font-bold text-white_supreme'
+              className='text-raisin mb-2 block text-xl font-bold'
               htmlFor='partiesInvolved'
             >
               Who is involved?
             </label>
             <textarea
-              className={`focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none ${
+              className={`focus:shadow-outline text-space focus:ring-space w-full appearance-none rounded-xl border px-3 py-2 text-lg leading-tight shadow focus:outline-none focus:ring ${
                 errors.partiesInvolved ? 'border-red-500' : ''
               }`}
               id='partiesInvolved'
@@ -204,13 +206,13 @@ const NewCasePage = () => {
 
           <div className='mb-4'>
             <label
-              className='mb-2 block text-xl font-bold text-white_supreme'
+              className='text-raisin mb-2 block text-xl font-bold'
               htmlFor='incidentDate'
             >
               When did this happen?
             </label>
             <input
-              className={`focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none ${
+              className={`focus:shadow-outline text-space focus:ring-space w-full appearance-none rounded-xl border px-3 py-2 text-lg leading-tight shadow focus:outline-none focus:ring ${
                 errors.incidentDate ? 'border-red-500' : ''
               }`}
               id='incidentDate'
@@ -226,13 +228,13 @@ const NewCasePage = () => {
 
           <div className='mb-4'>
             <label
-              className='mb-2 block text-xl font-bold text-white_supreme'
+              className='text-raisin mb-2 block pt-4 text-xl font-bold'
               htmlFor='zipCode'
             >
               Where did this happen? (ZIP Code)
             </label>
             <input
-              className={`focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none ${
+              className={`focus:shadow-outline text-space focus:ring-space w-full appearance-none rounded-xl border px-3 py-2 text-lg leading-tight shadow focus:outline-none focus:ring ${
                 errors.zipCode ? 'border-red-500' : ''
               }`}
               id='zipCode'
@@ -248,7 +250,7 @@ const NewCasePage = () => {
           </div>
 
           <div className='mb-4'>
-            <label className='mb-2 block text-xl font-bold text-white_supreme'>
+            <label className='text-raisin mb-2 block pt-4 text-xl font-bold'>
               How has this impacted you?
             </label>
             {impactOptions.map((impact) => (
@@ -292,13 +294,13 @@ const NewCasePage = () => {
 
           <div className='mb-4'>
             <label
-              className='mb-2 block text-xl font-bold text-white_supreme'
+              className='text-raisin mb-2 block pt-4 text-xl font-bold'
               htmlFor='desiredResolution'
             >
               What is your desired resolution?
             </label>
             <textarea
-              className={`focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none ${
+              className={`focus:shadow-outline text-space focus:ring-space w-full appearance-none rounded-xl border px-3 py-2 text-lg leading-tight shadow focus:outline-none focus:ring ${
                 errors.desiredResolution ? 'border-red-500' : ''
               }`}
               id='desiredResolution'
@@ -313,13 +315,9 @@ const NewCasePage = () => {
             )}
           </div>
 
-          <button
-            className='focus:shadow-outline rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none'
-            type='submit'
-            disabled={loading}
-          >
+          <CaseButton variant='destructive' type='submit' disabled={loading}>
             {loading ? 'Submitting...' : 'Submit Case'}
-          </button>
+          </CaseButton>
         </form>
       </div>
     </div>

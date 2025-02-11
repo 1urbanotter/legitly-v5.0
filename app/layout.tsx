@@ -1,16 +1,16 @@
 import './globals.css'
 
 import type { Metadata } from 'next'
-import { Outfit, DM_Serif_Text } from 'next/font/google'
+import { Gantari, DM_Serif_Text } from 'next/font/google'
 
 import Navbar from '@/components/common/Navbar'
 import { Providers } from '@/components/providers/Providers'
 
 // Import fonts
-const outfit = Outfit({
+const gantari = Gantari({
   subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-outfit',
+  weight: '400',
+  variable: '--font-gantari',
 })
 const dmSerifText = DM_Serif_Text({
   subsets: ['latin'],
@@ -29,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang='en' className={`${outfit.variable} ${dmSerifText.variable}`}>
+    <html lang='en' className={`${gantari.variable} ${dmSerifText.variable}`}>
       <head>
         {/* Material Icons for UI */}
         <link

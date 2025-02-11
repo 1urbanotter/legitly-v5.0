@@ -11,8 +11,8 @@ import { toast, ToastOptions } from 'react-toastify'
 import * as z from 'zod'
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email('❌ Invalid email address'),
+  password: z.string().min(6, '❌ Pleasae enter your password'),
 })
 
 type LoginSchemaType = z.infer<typeof loginSchema>
@@ -75,25 +75,23 @@ const LoginPage = () => {
   }
 
   return (
-    <div className='flex min-h-screen items-center justify-center bg-white_supreme'>
-      <div className='w-full max-w-md rounded-2xl bg-navy_blue p-8 shadow-lg'>
-        <h1 className='mb-6 text-center text-4xl font-bold text-white_supreme'>
+    <div className='flex min-h-screen items-center justify-center bg-sky-800'>
+      <div className='bg-space w-full max-w-md rounded-2xl p-8 shadow-xl'>
+        <h1 className='mb-6 text-center font-dm-serif text-4xl font-bold text-white'>
           Login to Legitly
         </h1>
         <form onSubmit={handleSubmit(onSubmit)}>
           {/* Email Input */}
           <div className='mb-6'>
             <label
-              className='mb-2 block text-lg font-bold text-white_supreme'
-              htmlFor='email'
+              className='mb-2 block text-lg font-bold text-sky-600'
+              htmlFor='password'
             >
-              EMAIL:
+              Email
             </label>
             <input
-              className={`w-full rounded-lg border-4 border-white_supreme px-3 py-4 text-lg font-bold leading-tight text-navy_blue shadow-md hover:ring hover:ring-neon_blue focus:outline-none focus:ring focus:ring-neon_blue ${
-                errors.email
-                  ? 'border-almost_red bg-almost_red-900 ring-almost_red'
-                  : ''
+              className={`text-space-600 w-full rounded-lg border-4 border-white px-3 py-4 text-lg leading-tight shadow-lg hover:ring-4 hover:ring-sky-800 focus:outline-none focus:ring-4 focus:ring-sky-500 ${
+                errors.email ? 'ring-red border-red-400 bg-red-200' : ''
               }`}
               id='email'
               type='email'
@@ -101,7 +99,7 @@ const LoginPage = () => {
               {...register('email')}
             />
             {errors.email && (
-              <p className='text-md pt-2 text-almost_red'>
+              <p className='pt-2 text-lg text-red-500'>
                 {errors.email.message}
               </p>
             )}
@@ -110,16 +108,14 @@ const LoginPage = () => {
           {/* Password Input */}
           <div className='mb-6'>
             <label
-              className='mb-2 block text-lg font-bold text-white_supreme'
+              className='mb-2 block text-lg font-bold text-sky-600'
               htmlFor='password'
             >
-              PASSWORD:
+              Password
             </label>
             <input
-              className={`w-full rounded-lg border-4 border-white_supreme px-3 py-4 text-lg font-bold leading-tight text-navy_blue shadow-md hover:ring hover:ring-neon_blue focus:outline-none focus:ring focus:ring-neon_blue ${
-                errors.password
-                  ? 'border-almost_red bg-almost_red-900 ring-almost_red'
-                  : ''
+              className={`text-space-600 w-full rounded-lg border-4 border-white px-3 py-4 text-lg leading-tight shadow-lg hover:ring hover:ring-sky-800 focus:outline-none focus:ring focus:ring-sky-900 ${
+                errors.password ? 'ring-red border-red-400 bg-red-200' : ''
               }`}
               id='password'
               type='password'
@@ -127,7 +123,7 @@ const LoginPage = () => {
               {...register('password')}
             />
             {errors.password && (
-              <p className='text-md pt-2 text-almost_red'>
+              <p className='pt-2 text-lg text-red-500'>
                 {errors.password.message}
               </p>
             )}
@@ -136,7 +132,7 @@ const LoginPage = () => {
           {/* Submit Button */}
           <div className='flex items-center justify-between'>
             <button
-              className={`mt-6 w-full rounded-lg bg-neon_blue px-4 py-4 text-xl font-bold text-navy_blue transition-all duration-200 hover:bg-neon_blue-700 focus:outline-none focus:ring-2 focus:ring-neon_blue focus:ring-offset-2 ${
+              className={`bg-sky text-raisin focus:ring-silver mt-6 w-full rounded-lg px-4 py-4 text-xl font-bold transition-all duration-200 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                 loading ? 'cursor-not-allowed opacity-50' : ''
               }`}
               type='submit'

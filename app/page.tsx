@@ -1,7 +1,6 @@
 import React from 'react'
 
 import Footer from '@/components/common/Footer'
-import Navbar from '@/components/common/Navbar'
 import FeaturesOverview from '@/components/landing/Features'
 import Hero from '@/components/landing/Hero'
 import CallToAction from '@/components/landing/SignupCall'
@@ -9,7 +8,7 @@ import ValueProposition from '@/components/landing/ValueProp'
 
 const HomePage = () => {
   return (
-    <div className='font-poppins mx-10 mt-6 min-h-screen max-w-7xl bg-white'>
+    <div className='bg-silver-800 mx-auto min-h-screen max-w-6xl p-10'>
       <Hero />
       <ValueProposition />
       <FeaturesOverview />

@@ -67,13 +67,13 @@ export const CaseList = ({ userId }: { userId: string }) => {
   }
 
   return (
-    <div className='rounded-lg bg-white p-6 shadow-sm'>
+    <div className='bg-raisin-400 rounded-lg p-6 shadow-sm'>
       <div className='mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
         <div>
-          <h2 className='text-2xl font-semibold text-gray-900'>
-            Case Management
+          <h2 className='font-dm-serif text-3xl font-bold text-white'>
+            Case Dashboard
           </h2>
-          <p className='mt-1 text-gray-600'>
+          <p className='text-sky mt-1 text-lg font-bold'>
             {filteredCases.length} cases found
           </p>
         </div>
@@ -103,11 +103,13 @@ export const CaseList = ({ userId }: { userId: string }) => {
         </div>
       ) : (
         <EmptyState
-          title='No cases found'
+          title='No Cases Found'
           description='Get started by creating a new case'
           action={
             <CaseButton
-              variant='primary'
+              variant='destructive'
+              size='lg'
+              aria-label='Create new case'
               icon={<PlusCircle className='h-5 w-5' />}
               asChild
             >

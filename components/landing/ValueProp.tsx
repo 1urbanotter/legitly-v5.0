@@ -27,9 +27,9 @@ const ValueProposition = () => {
   ]
 
   return (
-    <section className='bg-neon_blue-700 px-10 py-20'>
+    <section className='bg-raisin px-10 py-20'>
       <div className='mx-auto max-w-6xl'>
-        <h2 className='mb-12 text-center text-3xl font-bold text-navy_blue sm:text-4xl'>
+        <h2 className='mb-12 text-center text-3xl font-bold text-white sm:text-4xl'>
           Why Choose Legitly?
         </h2>
         <div className='grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4'>
@@ -38,10 +38,10 @@ const ValueProposition = () => {
               key={index}
               className='rounded-xl bg-white p-6 shadow-lg transition-shadow duration-200 hover:shadow-xl'
             >
-              <h3 className='mb-4 rounded-lg bg-almost_red p-4 text-center text-xl font-bold text-white'>
+              <h3 className='mb-4 rounded-lg p-4 text-center font-dm-serif text-3xl font-bold text-sky-300'>
                 {value.title}
               </h3>
-              <p className='text-center text-lg font-bold leading-relaxed text-gray-600'>
+              <p className='text-silver-200 text-center text-xl font-bold leading-relaxed'>
                 {value.description}
               </p>
             </div>

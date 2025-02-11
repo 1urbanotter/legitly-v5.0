@@ -31,22 +31,22 @@ export const CaseButton = forwardRef<HTMLButtonElement, CaseButtonProps>(
       'inline-flex items-center justify-center rounded-lg font-semibold font-dm-serif transition-all',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
       'disabled:pointer-events-none disabled:opacity-50',
-      'active:scale-95 transition-transform duration-150 ease-in-out', // Active scale effect
+      'active:scale-95 transition-transform duration-150 ease-in-out',
       {
         // Primary Button
-        'bg-neon_blue text-navy_blue font-semibold border-white_supreme border-2 hover:bg-neon_blue-700 focus-visible:ring-neon_blue-500 active:bg-neon_blue-800 sm:text-lg':
+        'text-raisin bg-sky border-silver block rounded-md border-2 px-4 py-2 font-dm-serif font-bold hover:bg-sky-700 focus:ring-sky-500 active:bg-sky-800 sm:text-lg':
           variant === 'primary',
         // Secondary Button
-        'bg-navy_blue text-white_supreme hover:bg-navy_blue-700 focus-visible:ring-navy_blue-500 active:bg-navy_blue-800':
+        'bg-raisin text-silver hover:bg-raisin-700 focus-visible:ring-raisin-500 active:bg-raisin-800':
           variant === 'secondary',
         // Destructive Button
-        'bg-almost_red text-white_supreme hover:bg-almost_red-700 focus-visible:ring-almost_red-500 active:bg-almost_red-800':
+        'bg-space border-2 border-sky-300 text-white text-xl hover:bg-sky-300 focus-visible:ring-space-900 active:bg-cement-800 rounded-lg shadow-lg':
           variant === 'destructive',
         // Outline Button
-        'border-2 border-white_supreme bg-transparent text-white_supreme hover:bg-white_supreme hover:text-navy_blue focus-visible:ring-white_supreme active:bg-white_supreme/20':
+        'border-2 border-silver bg-transparent text-silver hover:bg-silver hover:text-space roubded-md focus-visible:ring-silver active:bg-silver/20':
           variant === 'outline',
         // Ghost Button
-        'bg-transparent text-white_supreme hover:bg-navy_blue-700 focus-visible:ring-navy_blue-500 active:bg-navy_blue-800':
+        'bg-transparent text-silver hover:bg-space-700 focus-visible:ring-space-500 active:bg-space-800':
           variant === 'ghost',
       },
       {

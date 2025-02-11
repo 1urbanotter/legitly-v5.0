@@ -10,7 +10,7 @@ export const EmptyState = ({
   action?: React.ReactNode
 }) => (
   <div className='py-12 text-center'>
-    <div className='mx-auto mb-4 h-24 w-24 text-gray-400' aria-hidden='true'>
+    <div className='mx-auto mb-4 h-24 w-24 text-white' aria-hidden='true'>
       <svg
         className='h-full w-full'
         fill='none'
@@ -25,8 +25,10 @@ export const EmptyState = ({
         />
       </svg>
     </div>
-    <h3 className='mb-2 text-lg font-medium text-gray-900'>{title}</h3>
-    <p className='mb-4 text-gray-600'>{description}</p>
+    <h3 className='mb-2 font-dm-serif text-2xl font-semibold text-white'>
+      {title}
+    </h3>
+    <p className='text-sky mb-4 text-lg'>{description}</p>
     {action}
   </div>
 )
