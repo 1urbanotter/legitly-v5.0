@@ -1,14 +1,17 @@
+// app/(auth)/login/page.tsx
+
 'use client'
 
 import 'react-toastify/dist/ReactToastify.css'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { setCookie } from 'cookies-next'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast, ToastOptions } from 'react-toastify'
 import * as z from 'zod'
+import { signInUser } from '@/lib/auth' // Import signInUser function
+import { useCookies } from 'react-cookie'
 
 const loginSchema = z.object({
   email: z.string().email('❌ Invalid email address'),
@@ -27,48 +30,36 @@ const LoginPage = () => {
   } = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
   })
+  const [, setCookie] = useCookies(['token'])
 
   const onSubmit = async (data: LoginSchemaType) => {
     setLoading(true)
     try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
+      // Use the signInUser function from lib/auth.ts
+      const { userId } = await signInUser(data.email, data.password)
 
-      if (res.ok) {
-        const { token } = await res.json()
-        setCookie('token', token, { maxAge: 60 * 60 * 24 })
-        const toastOptions: ToastOptions = {
-          position: 'top-center',
-          autoClose: 1500,
-        }
-        toast.success(
-          'You have successfully logged in. Redirecting...',
-          toastOptions
-        )
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 1500)
-      } else {
-        const errorData = await res.json()
-        const toastOptions: ToastOptions = {
-          position: 'top-center',
-        }
-        toast.error(
-          errorData.message || 'An error occurred during login.',
-          toastOptions
-        )
+      setCookie('token', userId, { maxAge: 60 * 60 * 24 })
+
+      const toastOptions: ToastOptions = {
+        position: 'top-center',
+        autoClose: 1500,
       }
-    } catch (err) {
+      toast.success(
+        'You have successfully logged in. Redirecting...',
+        toastOptions
+      )
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 1500)
+    } catch (err: any) {
       console.error('Login error:', err)
       const toastOptions: ToastOptions = {
         position: 'top-center',
       }
-      toast.error('Network error or server is down.', toastOptions)
+      toast.error(
+        err.message || 'An error occurred during login.',
+        toastOptions
+      )
     } finally {
       setLoading(false)
     }

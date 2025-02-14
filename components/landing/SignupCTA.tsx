@@ -1,4 +1,4 @@
-// components/landing/SignupCall.tsx
+// components/landing/SignupCTA.tsx
 
 import Link from 'next/link'
 import React from 'react'

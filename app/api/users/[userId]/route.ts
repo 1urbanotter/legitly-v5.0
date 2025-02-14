@@ -1,44 +1,27 @@
-// api/users/[userId]/route.ts
+// app/api/users/[userId]/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { doc, getDoc } from 'firebase/firestore'
 
-import { NextResponse } from 'next/server'
-
-import dbConnect from '@/lib/mongodb'
-import User from '@/models/User'
+import { db } from '@/lib/firebase'
 
 export async function GET(
-  request: Request,
+  req: NextRequest,
   { params }: { params: { userId: string } }
 ) {
-  console.log('API Route - userId:', params.userId)
-
   try {
-    await dbConnect()
+    const userId = params.userId
+    const userRef = doc(db, 'users', userId)
+    const userSnapshot = await getDoc(userRef)
 
-    const user = await User.findById(params.userId)
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    if (!userSnapshot.exists()) {
+      return NextResponse.json({ message: 'User not found' }, { status: 404 })
     }
 
-    const safeUser = {
-      _id: user._id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    }
+    const userData = userSnapshot.data()
 
-    return NextResponse.json(safeUser)
-  } catch (error: unknown) {
-    console.error('API Route error:', error)
-    return NextResponse.json(
-      {
-        error:
-          process.env.NODE_ENV === 'development'
-            ? error instanceof Error
-              ? error.message
-              : 'Unknown error'
-            : 'Server error',
-      },
-      { status: 500 }
-    )
+    return NextResponse.json({ user: userData }, { status: 200 })
+  } catch (error: any) {
+    console.error('Firebase user fetching error:', error)
+    return NextResponse.json({ message: error.message }, { status: 500 })
   }
 }

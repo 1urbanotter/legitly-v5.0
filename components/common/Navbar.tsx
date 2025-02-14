@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -11,14 +11,42 @@ const Navbar = () => {
 
   const handleLogout = () => {
     setIsAuthenticated(false) // Clear authentication state (replace with actual logout logic)
+    setIsOpen(false) // Close menu on logout
   }
 
-  const navLinks = !isAuthenticated
-    ? ['About', 'Services', 'Contact']
-    : ['Dashboard', 'New Case', 'Ask AI']
+  // Define all nav links in one place, then filter by auth state
+  const allNavLinks = useMemo(
+    () => ({
+      unauthenticated: ['About', 'Services', 'Contact'],
+      authenticated: ['Dashboard', 'New Case', 'Ask AI'],
+    }),
+    []
+  )
+
+  const navLinks = useMemo(
+    () =>
+      isAuthenticated ? allNavLinks.authenticated : allNavLinks.unauthenticated,
+    [isAuthenticated, allNavLinks]
+  )
+
+  // Memoize the menu items to avoid re-rendering unless dependencies change
+  const mobileMenuItems = useMemo(
+    () =>
+      navLinks.map((item) => (
+        <Link
+          key={item}
+          href={`/${item.toLowerCase().replace(' ', '-')}`}
+          className='block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-sky-700 hover:text-white'
+          onClick={() => setIsOpen(false)}
+        >
+          {item}
+        </Link>
+      )),
+    [navLinks]
+  )
 
   return (
-    <nav className='bg-space-400 sticky top-0 z-20 shadow-lg dark:bg-gray-800'>
+    <nav className='bg-raisin-400 z-90 shadow-raisin-700 sticky top-0 shadow-lg dark:bg-gray-800'>
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
         <div className='flex h-16 items-center justify-between'>
           {/* Logo */}
@@ -41,7 +69,14 @@ const Navbar = () => {
                 {item}
               </Link>
             ))}
-            {!isAuthenticated ? (
+            {isAuthenticated ? (
+              <button
+                onClick={handleLogout}
+                className='rounded-md bg-red-500 px-3 py-2 text-sm font-medium text-white hover:bg-red-600'
+              >
+                Logout
+              </button>
+            ) : (
               <>
                 <Link
                   href='/login'
@@ -56,13 +91,6 @@ const Navbar = () => {
                   Get Started
                 </Link>
               </>
-            ) : (
-              <button
-                onClick={handleLogout}
-                className='rounded-md bg-red-500 px-3 py-2 text-sm font-medium text-white hover:bg-red-600'
-              >
-                Logout
-              </button>
             )}
           </div>
 
@@ -91,17 +119,15 @@ const Navbar = () => {
             className='md:hidden'
           >
             <div className='space-y-1 px-2 pb-3 pt-2 sm:px-3'>
-              {navLinks.map((item) => (
-                <Link
-                  key={item}
-                  href={`/${item.toLowerCase().replace(' ', '-')}`}
-                  className='block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-sky-700 hover:text-white'
-                  onClick={() => setIsOpen(false)}
+              {mobileMenuItems}
+              {isAuthenticated ? (
+                <button
+                  onClick={handleLogout}
+                  className='block w-full rounded-md bg-red-500 px-3 py-2 text-base font-medium text-white hover:bg-red-600'
                 >
-                  {item}
-                </Link>
-              ))}
-              {!isAuthenticated ? (
+                  Logout
+                </button>
+              ) : (
                 <>
                   <Link
                     href='/login'
@@ -118,16 +144,6 @@ const Navbar = () => {
                     Get Started
                   </Link>
                 </>
-              ) : (
-                <button
-                  onClick={() => {
-                    handleLogout()
-                    setIsOpen(false)
-                  }}
-                  className='block w-full rounded-md bg-red-500 px-3 py-2 text-base font-medium text-white hover:bg-red-600'
-                >
-                  Logout
-                </button>
               )}
             </div>
           </motion.div>

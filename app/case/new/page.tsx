@@ -1,20 +1,21 @@
 // app/case/new/page.tsx
-
 'use client'
 
 import 'react-toastify/dist/ReactToastify.css'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useCookies } from 'react-cookie'
 import { useForm } from 'react-hook-form'
 import { toast, ToastOptions } from 'react-toastify'
-import { redirect } from 'next/navigation'
 import * as z from 'zod'
 
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
 import { CaseButton } from '@/components/ui/CaseButton'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth, db } from '@/lib/firebase'
+import { getUserData } from '@/lib/auth'
 
 const newCaseSchema = z.object({
   issueDescription: z
@@ -42,7 +43,7 @@ const newCaseSchema = z.object({
 type NewCaseSchemaType = z.infer<typeof newCaseSchema>
 
 const NewCasePage = () => {
-  const [cookies, setCookie, removeCookie] = useCookies(['token'])
+  const [, , removeCookie] = useCookies(['token'])
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const {
@@ -77,36 +78,81 @@ const NewCasePage = () => {
     }
   }
 
+  const handleAutopopulate = () => {
+    setValue(
+      'issueDescription',
+      'I, Mr. Barclay, am being evicted by my landlord, Mr. Smith, without any notice or cause. I have been a tenant at the property for 2 years and have always paid my rent on time. The landlord has not provided any reason for the eviction and has not given me any opportunity to correct any alleged violations of the lease. They simply told me to leave.'
+    )
+    setValue('partiesInvolved', 'Mr. Smith (Landlord) vs. Mr. Barclay (Tenant)')
+    setValue('incidentDate', new Date().toISOString().split('T')[0])
+    setValue('zipCode', '92101')
+    setValue(
+      'desiredResolution',
+      'I want to be able to stay in my apartment and have the landlord follow the proper legal procedures for eviction.'
+    )
+  }
+  const [user, authLoading, authError] = useAuthState(auth)
+  const [userData, setUserData] = useState<any>(null)
+  const [firebaseToken, setFirebaseToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user) {
+        try {
+          const data = await getUserData(user.uid)
+          setUserData(data)
+        } catch (err) {
+          console.error('Error fetching user data:', err)
+        }
+      }
+    }
+
+    fetchUserData()
+  }, [user])
+
+  useEffect(() => {
+    const getAuthToken = async () => {
+      if (user) {
+        try {
+          const token = await user.getIdToken()
+          setFirebaseToken(token)
+        } catch (error) {
+          console.error('Error getting Firebase token:', error)
+        }
+      }
+    }
+    getAuthToken()
+  }, [user])
+
   const onSubmit = async (data: NewCaseSchemaType) => {
     setLoading(true)
-    const token = cookies['token']
-    if (!token) {
-      toast.error('Authentication token not found. Please log in again.', {
-        position: 'top-center',
-      })
-      setLoading(false)
-      return
-    }
-
-    const formData = new FormData()
-    formData.append('issueDescription', data.issueDescription)
-    formData.append('partiesInvolved', data.partiesInvolved)
-    formData.append('incidentDate', data.incidentDate)
-    formData.append('zipCode', data.zipCode)
-    formData.append('desiredResolution', data.desiredResolution)
-    if (data.otherImpact) {
-      formData.append('otherImpact', data.otherImpact)
-    }
-
-    data.issueImpact?.forEach((impact) => {
-      formData.append('issueImpact', impact)
-    })
-
     try {
+      if (!firebaseToken) {
+        toast.error('Firebase token not available. Please try again.', {
+          position: 'top-center',
+        })
+        setLoading(false)
+        return
+      }
+
+      const formData = new FormData()
+      formData.append('issueDescription', data.issueDescription)
+      formData.append('partiesInvolved', data.partiesInvolved)
+      formData.append('incidentDate', data.incidentDate)
+      formData.append('zipCode', data.zipCode)
+      formData.append('desiredResolution', data.desiredResolution)
+      if (data.otherImpact) {
+        formData.append('otherImpact', data.otherImpact)
+      }
+
+      data.issueImpact?.forEach((impact) => {
+        formData.append('issueImpact', impact)
+      })
+
       const response = await fetch('/api/cases', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${firebaseToken}`,
         },
         body: formData,
       })
@@ -120,9 +166,9 @@ const NewCasePage = () => {
           'Your case has been submitted successfully.',
           toastOptions
         )
-        const { case: newCase } = await response.json()
+        // const { case: newCase } = await response.json()
         setTimeout(() => {
-          router.push(`/case/${newCase._id}`)
+          router.push(`/dashboard`)
         }, 1500)
       } else {
         const errorData = await response.json()
@@ -146,24 +192,24 @@ const NewCasePage = () => {
   return (
     <div className='bg-raisin min-h-screen p-4 pt-20 sm:p-8'>
       <div className='shadow-silver-300 mx-auto max-w-3xl rounded-2xl bg-sky-700 p-6 shadow-lg'>
-        <DashboardHeader
-          user={{
-            _id: '',
-            firstName: 'Friend!',
-            lastName: 'User',
-            email: 'test@example.com',
-          }}
-        />
+        {userData ? (
+          <DashboardHeader user={userData} />
+        ) : (
+          <div>Loading user data...</div>
+        )}
         <h1 className='border-space mb-6 border-t-4 pt-4 font-dm-serif text-3xl font-bold text-white_supreme'>
           New Case Intake
         </h1>
+        <CaseButton onClick={handleAutopopulate}>
+          Autopopulate Eviction Case
+        </CaseButton>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='mb-4'>
             <label
               className='mb-2 block text-xl font-bold text-white_supreme'
               htmlFor='issueDescription'
             >
-              What&apos;s going on?
+              What's going on?
             </label>
             <textarea
               className={`focus:shadow-outline text-space focus:ring-space w-full appearance-none rounded-xl border px-3 py-2 text-lg leading-tight shadow focus:outline-none focus:ring ${

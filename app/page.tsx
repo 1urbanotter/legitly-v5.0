@@ -1,9 +1,11 @@
+// app/page.tsx
+
 import React from 'react'
 
 import Footer from '@/components/common/Footer'
 import FeaturesOverview from '@/components/landing/Features'
 import Hero from '@/components/landing/Hero'
-import CallToAction from '@/components/landing/SignupCall'
+import CallToAction from '@/components/landing/SignupCTA'
 import ValueProposition from '@/components/landing/ValueProp'
 
 const HomePage = () => {

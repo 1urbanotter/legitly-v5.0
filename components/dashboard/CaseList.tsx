@@ -1,5 +1,4 @@
-// components/dashboard/CaseList.tsx
-
+// app/components/dashboard/CaseList.tsx
 'use client'
 
 import { PlusCircle } from 'lucide-react'
@@ -11,6 +10,11 @@ import { CaseItem } from '@/components/dashboard/CaseItem'
 import { CaseButton } from '@/components/ui/CaseButton'
 import { Select } from '@/components/ui/Select'
 import { Case } from '@/types/case'
+
+interface CaseListProps {
+  userId: string
+  firebaseToken: string
+}
 
 const statusOptions = [
   { value: 'all', label: 'All Cases' },
@@ -25,7 +29,7 @@ const sortOptions = [
   { value: 'dueDate', label: 'Due Date' },
 ]
 
-export const CaseList = ({ userId }: { userId: string }) => {
+export const CaseList = ({ userId, firebaseToken }: CaseListProps) => {
   const [cases, setCases] = useState<Case[]>([])
   const [filterStatus, setFilterStatus] = useState('all')
   const [sortBy, setSortBy] = useState('createdAt')
@@ -34,8 +38,17 @@ export const CaseList = ({ userId }: { userId: string }) => {
   useEffect(() => {
     const fetchCases = async () => {
       try {
-        const response = await fetch(`/api/cases?userId=${userId}`)
-        const data = await response.json()
+        const response = await fetch(`/api/cases?userId=${userId}`, {
+          headers: {
+            Authorization: `Bearer ${firebaseToken}`,
+          },
+        })
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch cases: ${response.status} ${response.statusText}`
+          )
+        }
+        const data: Case[] = await response.json() // Directly assign the response to cases
         setCases(data)
       } catch (error) {
         console.error('Failed to fetch cases:', error)
@@ -45,7 +58,7 @@ export const CaseList = ({ userId }: { userId: string }) => {
     }
 
     fetchCases()
-  }, [userId])
+  }, [userId, firebaseToken])
 
   const filteredCases = useMemo(() => {
     return cases
@@ -58,6 +71,7 @@ export const CaseList = ({ userId }: { userId: string }) => {
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           )
         if (sortBy === 'priority') return b.priority - a.priority
+        //@ts-expect-error
         return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
       })
   }, [cases, filterStatus, sortBy])
@@ -98,7 +112,7 @@ export const CaseList = ({ userId }: { userId: string }) => {
       {filteredCases.length > 0 ? (
         <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
           {filteredCases.map((caseItem) => (
-            <CaseItem key={caseItem._id} caseItem={caseItem} />
+            <CaseItem key={caseItem.id} caseItem={caseItem} />
           ))}
         </div>
       ) : (
@@ -106,18 +120,21 @@ export const CaseList = ({ userId }: { userId: string }) => {
           title='No Cases Found'
           description='Get started by creating a new case'
           action={
-            <CaseButton
-              variant='destructive'
-              size='lg'
-              aria-label='Create new case'
-              icon={<PlusCircle className='h-5 w-5' />}
-              asChild
-            >
-              <Link href='/case/new'>Create Case</Link>
-            </CaseButton>
+            <Link href='/case/new' passHref>
+              <CaseButton
+                variant='destructive'
+                size='lg'
+                aria-label='Create new case'
+                icon={<PlusCircle className='h-5 w-5' />}
+              >
+                Create Case
+              </CaseButton>
+            </Link>
           }
         />
       )}
     </div>
   )
 }
+
+export default CaseList

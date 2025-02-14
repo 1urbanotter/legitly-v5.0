@@ -1,14 +1,15 @@
+// app/(auth)/signup/page.tsx
 'use client'
 
 import 'react-toastify/dist/ReactToastify.css'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { setCookie } from 'cookies-next'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast, ToastOptions } from 'react-toastify'
 import * as z from 'zod'
+import { createUser } from '@/lib/auth' // Import createUser function
 
 const signUpSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -33,42 +34,30 @@ const SignUpPage = () => {
   const onSubmit = async (data: SignUpSchemaType) => {
     setLoading(true)
     try {
-      const res = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
+      // Use the createUser function from lib/auth.ts
+      await createUser(data.email, data.password, data.firstName, data.lastName)
 
-      if (res.status === 201) {
-        const { token } = await res.json()
-        setCookie('token', token, { maxAge: 60 * 60 * 24 })
-        const toastOptions: ToastOptions = {
-          position: 'top-center',
-          autoClose: 1500,
-        }
-        toast.success(
-          'You have successfully signed up. Redirecting...',
-          toastOptions
-        )
-
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 1500)
-      } else {
-        const toastOptions: ToastOptions = {
-          position: 'top-center',
-        }
-        const { message } = await res.json()
-        toast.error(message || 'An error occurred during signup.', toastOptions)
+      const toastOptions: ToastOptions = {
+        position: 'top-center',
+        autoClose: 1500,
       }
-    } catch (err) {
+      toast.success(
+        'You have successfully signed up. Redirecting...',
+        toastOptions
+      )
+
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 1500)
+    } catch (err: any) {
       console.error(err)
       const toastOptions: ToastOptions = {
         position: 'top-center',
       }
-      toast.error('Network error or server is down.', toastOptions)
+      toast.error(
+        err.message || 'An error occurred during signup.',
+        toastOptions
+      )
     } finally {
       setLoading(false)
     }

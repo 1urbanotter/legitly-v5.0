@@ -3,12 +3,14 @@
 
 import { useParams, useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 
 import CaseItem from '@/components/CaseItem'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import Loading from '@/components/common/Loading'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
 import { Case } from '@/types/case'
+import { AnalysisResult } from '@/types/analysisResult'
 
 interface CaseDetailPageProps {
   params: { id: string }
@@ -18,6 +20,7 @@ const CaseDetailPage: React.FC<CaseDetailPageProps> = ({ params }) => {
   const { id } = useParams()
   const router = useRouter()
   const [caseData, setCaseData] = useState<Case | null>(null)
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -33,14 +36,36 @@ const CaseDetailPage: React.FC<CaseDetailPageProps> = ({ params }) => {
         setCaseData(data)
       } catch (err: any) {
         setError(err.message || 'Failed to fetch case')
-      } finally {
-        setLoading(false)
       }
     }
 
-    if (id) {
-      fetchCaseData()
+    const fetchAnalysis = async () => {
+      try {
+        const response = await fetch(`/api/case/analyze/${id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(
+            errorData.message || 'Failed to fetch legal analysis.'
+          )
+        }
+
+        const { analysis }: { analysis: AnalysisResult } = await response.json()
+        setAnalysis(analysis)
+      } catch (err: any) {
+        console.error('Error fetching analysis:', err)
+        toast.error(err.message || 'Failed to fetch legal analysis.')
+      }
     }
+
+    Promise.all([fetchCaseData(), fetchAnalysis()])
+      .then(() => setLoading(false))
+      .catch(() => setLoading(false))
   }, [id])
 
   if (loading) {
@@ -73,6 +98,57 @@ const CaseDetailPage: React.FC<CaseDetailPageProps> = ({ params }) => {
               Case Detail
             </h1>
             <CaseItem caseItem={caseData} />
+
+            {analysis && (
+              <div className='mt-6 border-t pt-4'>
+                <h2 className='text-xl font-semibold text-gray-700'>
+                  Legal Analysis
+                </h2>
+                <div className='mt-2'>
+                  <p>
+                    <strong>Case Classification:</strong>{' '}
+                    {analysis.caseClassification || 'Not available'}
+                  </p>
+                  <p>
+                    <strong>Relevant Laws:</strong>{' '}
+                    {analysis.relevantLaws
+                      ? analysis.relevantLaws.join(', ')
+                      : 'Not available'}
+                  </p>
+                  <p>
+                    <strong>Jurisdiction:</strong>{' '}
+                    {analysis.jurisdiction || 'Not available'}
+                  </p>
+                  <p>
+                    <strong>Recommendations:</strong>{' '}
+                    {analysis.recommendations
+                      ? analysis.recommendations.join(', ')
+                      : 'Not available'}
+                  </p>
+                  <p>
+                    <strong>Deadlines:</strong>{' '}
+                    {analysis.deadlines
+                      ? analysis.deadlines.join(', ')
+                      : 'Not available'}
+                  </p>
+                  <p>
+                    <strong>Strength Indicators:</strong>{' '}
+                    {analysis.strengthIndicators || 'Not available'}
+                  </p>
+                  <p>
+                    <strong>Supporting Documentation:</strong>{' '}
+                    {analysis.supportingDocumentation
+                      ? analysis.supportingDocumentation.join(', ')
+                      : 'Not available'}
+                  </p>
+                  <p>
+                    <strong>Drafted Communication:</strong>{' '}
+                    {analysis.draftedCommunication || 'Not available'}
+                  </p>
+                </div>
+              </div>
+            )}
+
             <button
               onClick={() => router.back()}
               className='mt-4 rounded bg-gray-300 px-4 py-2 font-bold text-gray-800 hover:bg-gray-400'
